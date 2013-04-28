@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Caption Captain - Guess the caption</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<meta name="description=" content="Guess the caption that matches an image from reddit.">
+
+	<meta property="og:title" content="Caption Captain"/> 
+	<meta property="og:site_name" content="Caption Captain"/> 
+	<meta property="og:admins" content="637324342"/>
+	<meta property="og:image" content="http://i.imgur.com/XJEhW.png"/>
+
+	<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+	<script>
+		var dojoConfig = {
+			async: true,
+			parseOnLoad: false,
+			has: {
+				"dojo-debug-messages": false
+			},
+			packages: [{
+				name: "game",
+				location: "/game"
+			},{
+				name: "dojobootstrap",
+				location: "/dojobootstrap"
+			},{
+				name: "combined",
+				location: "/combined"
+			}],
+		};
+	</script>
+
+	<style>
+		html,body { height:100%; }
+		#loading { position:absolute;width:100%;text-align:center;margin-top:20px; }
+		#image-holder { max-height:350px; }
+		#score { float:right; }
+		#skipspan { float:left; }
+		#skip { cursor:pointer; }
+		#main { overflow:auto; padding-bottom:45px; }
+		#error { overflow:auto; padding:45px; }
+		#loaded { min-height: 100%; }
+		#footer { position: relative;margin-top:-45px;height:45px;clear:both;text-align:center; }
+		#subreddit-input { width:200px; }
+		#now-showing { font-size:21px; font-weight:200;margin-top:10px;margin-bottom:5px; }
+		.image-row { margin:20px 0; }
+		.answer-btn { margin:5px 0; width:100%; }
+		.centered { text-align:center; }
+	</style>
+</head>
+
+<body>
+	<div id="loading">
+		<div class="centered"><h3><em>One second please</em></h3></div>
+		<img src="img/loader.gif" alt="Loading" />
+		<div class="centered"><h3><em>Loading next image ...</em></h3></div>
+	</div>
+
+	<div id="loaded" style="display:none">
+		<div id="main">
+			<div class="row-fluid image-row">
+				<div class="span8 offset2"><div class="centered"><img id="image-holder" src="" alt="Image" /></div></div>
+			</div>
+
+			<div class="row-fluid" >
+			</div>
+
+			<div id="answers">
+				<div class="row-fluid" >
+					<div class="span10 offset1">
+						<div><strong>Guess the caption:</strong></div>
+						<div><button class="answer btn btn-large btn-primary answer-btn" id="answer-a"></button></div>
+					</div>
+				</div>
+				<div class="row-fluid">
+					<div class="span10 offset1"><button class="answer btn btn-large btn-primary answer-btn" id="answer-b"></button></div>
+				</div>
+				<div class="row-fluid">
+					<div class="span10 offset1"><button class="answer btn btn-large btn-primary answer-btn" id="answer-c"></button></div>
+				</div>
+			</div>
+
+
+			<div class="row-fluid">
+				<div class="span10 offset1">
+					<span id="skipspan"><strong><a id="skip">Skip</a></strong></span>
+					<span id="score"></span>
+				</div>
+			</div>
+
+			<div class="row-fluid" >
+				<div class="span10 offset1 centered" id="previously"></div>
+			</div>
+
+			<div class="row-fluid">
+				<div class="span10 offset1 centered">
+					<p id="now-showing">Now showing: <a href="http://www.reddit.com/r/reactiongifs" target="_blank">r/reactiongifs</a></p>
+					<button class="btn btn-small" data-toggle="modal" href="#subreddit-modal">Different subreddit?</button>
+				</div>
+			</div>
+		</div>
+
+		<div id="error" style="display:none">
+			<div class="centered">
+				<div>
+					<h5>Something went wrong, you might have chosen a subreddit that doesn't exist or doesn't have many image links. Do you want to go back to <a href="/">reactiongifs</a>? If this keeps happening for no good reason, please <a href="http://www.reddit.com/message/compose/?to=bonnici&amp;subject=Your%20dumb%20crap%20is%20broken" target="_blank">let me know</a>.</h5>
+				</div>
+
+				<div>
+					<iframe width="420" height="315" src="http://www.youtube.com/embed/katzz57tmm4" frameborder="0"></iframe>
+				</div>
+			</div>
+		</div>
+
+	</div>
+		
+	<div id="footer" style="display:none">
+		<div>
+			<small>All content comes from <a href="http://www.reddit.com" target="_blank">reddit</a></small>
+		</div>
+		<div>
+			<small>
+			<a href="http://www.reddit.com/message/compose/?to=bonnici&amp;subject=I%20love%20you" target="_blank">Contact</a>
+			•
+			</small>
+			<a class="addthis_button" href="http://www.addthis.com/bookmark.php?v=300&amp;pubid=ra-5095ae3c43e44515"><img src="http://s7.addthis.com/static/btn/v2/lg-share-en.gif" width="125" height="16" alt="Bookmark and Share" style="border:0"/></a>
+			<script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5095ae3c43e44515"></script>
+		</div>
+	</div>
+
+	<div class="modal hide" id="subreddit-modal">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">×</button>
+			<h3>Which subreddit?</h3>
+		</div>
+		<div class="modal-body">
+			<input id="subreddit-input" type="text" placeholder="Example: reactiongifs">
+		</div>
+		<div class="modal-footer">
+			<a href="#" class="btn" data-dismiss="modal">Cancel</a>
+			<a href="#" id="subreddit-button" class="btn btn-primary">Do It</a>
+		 </div>
+	</div>
+
+	<!-- JSONP is broken in 1.8.2/current -->
+	<script src="//ajax.googleapis.com/ajax/libs/dojo/1.8.1/dojo/dojo.js" data-dojo-config="isDebug:0, async:1"></script>
+	<script>
+		require(["game/controller", "dojobootstrap/Modal", "dojo/domReady!"], function(controller) {
+			controller.init();
+		});
+
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-36065168-1']);
+		_gaq.push(['_trackPageview']);
+
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
+</body>
+
+</html>
